@@ -1,0 +1,18 @@
+{
+  "name": "TreeUi — AI Mobile Wrapper",
+  "short_name": "TreeUi",
+  "description": "A lightweight, premium mobile web UI for OpenAI, Claude, and Gemini APIs.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08090a",
+  "theme_color": "#08090a",
+  "icons": [
+    {
+      "src": "app_icon.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

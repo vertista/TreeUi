@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>TreeUi</title>
+  
+  <!-- SEO Meta -->
+  <meta name="description" content="A super lightweight, premium mobile web client for OpenAI, Claude, and Gemini APIs. Fully local, fast, and feature-rich.">
+  <meta name="theme-color" content="#08090a">
+  
+  <!-- Mobile Web App Meta -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- DNS Prefetch for API domains -->
+  <link rel="dns-prefetch" href="https://api.openai.com">
+  <link rel="dns-prefetch" href="https://openrouter.ai">
+  <link rel="dns-prefetch" href="https://generativelanguage.googleapis.com">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Markdown & Code Highlight CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.4.0/markdown-it.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Web App Manifest for mobile installation -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Prism autoloader deferred to after DOMContentLoaded -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js';
+      document.head.appendChild(s);
+    });
+  </script>
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-shell" id="appShell">
+    
+    <!-- Left Sidebar (Drawer) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="app-logo">
+          <h2>TreeUi</h2>
+        </div>
+        <button class="icon-btn" id="closeSidebarBtn" aria-label="Close sidebar">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      
+      <button class="new-chat-sidebar-btn" id="sidebarNewChatBtn">
+        <i data-lucide="plus"></i>
+        <span>New Chat</span>
+      </button>
+      
+      <div class="history-section">
+        <h3>Recent Chats</h3>
+        <div class="history-list" id="historyList">
+          <!-- Chat history links inserted here dynamically -->
+          <div class="empty-history">No conversations yet</div>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-action-btn" id="openSettingsBtn">
+          <i data-lucide="settings"></i>
+          <span>Settings & APIs</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Sidebar Backdrop for Mobile Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Navigation Header -->
+      <header class="app-header">
+        <button class="icon-btn" id="toggleSidebarBtn" aria-label="Open sidebar">
+          <i data-lucide="menu"></i>
+        </button>
+        
+        <!-- Chat Title (Concise M3 styling) -->
+        <div class="header-chat-title">
+          <span id="headerChatTitle">TreeUi</span>
+        </div>
+
+        <button class="icon-btn" id="newChatBtn" aria-label="Start new chat">
+          <i data-lucide="square-pen"></i>
+        </button>
+      </header>
+
+      <!-- Main Chat Body -->
+      <section class="chat-viewport" id="chatViewport">
+        
+        <!-- Welcome Screen (Shown when no messages) -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <h1 id="welcomeGreeting">How can I help you today?</h1>
+          
+          <div class="suggestions-grid">
+            <div class="suggestion-card" data-prompt="Create a workout routine and meal plan for a runner training for a 10k.">
+              <h4>Plan a workout</h4>
+              <p>routine & meal plan for a 10k run</p>
+              <span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <div class="suggestion-card" data-prompt="Write a Python script that scrapes headlines from a website and saves them to a CSV.">
+              <h4>Write a script</h4>
+              <p>to scrape web headlines into CSV</p>
+              <span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <div class="suggestion-card" data-prompt="Explain quantum computing in simple terms that a 10-year-old would understand.">
+              <h4>Explain quantum physics</h4>
+              <p>in simple terms for a 10-year-old</p>
+              <span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <div class="suggestion-card" data-prompt="Help me brainstorm 5 unique gift ideas for a software engineer who loves coffee.">
+              <h4>Brainstorm gifts</h4>
+              <p>for a coffee-loving coder</p>
+              <span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message List (Container for active chat) -->
+        <div class="message-list hidden" id="messageList">
+          <!-- Messages will be injected here dynamically -->
+        </div>
+        
+        <div id="scrollAnchor"></div>
+      </section>
+
+      <!-- Input Bar Area -->
+      <footer class="input-panel">
+        <!-- Hidden Native File Inputs -->
+        <input type="file" id="fileInput" class="hidden" accept="*/*">
+        <input type="file" id="photoInput" class="hidden" accept="image/*">
+        <input type="file" id="cameraInput" class="hidden" accept="image/*" capture="environment">
+
+        <div class="input-bar-container">
+          <!-- Floating Model Selector Dropdown -->
+          <div class="model-dropdown-menu" id="inputModelDropdown">
+            <!-- Loaded Dynamically via JS based on selected pool models -->
+          </div>
+
+          <!-- Floating Attachment Menu (Monochromatic) -->
+          <div class="attachment-menu" id="attachmentMenu">
+            <button class="attach-menu-item" id="attachCamera" type="button">
+              <div class="attach-icon-circle"><i data-lucide="camera"></i></div>
+              <span>Camera</span>
+            </button>
+            <button class="attach-menu-item" id="attachPhotos" type="button">
+              <div class="attach-icon-circle"><i data-lucide="image"></i></div>
+              <span>Photos</span>
+            </button>
+            <button class="attach-menu-item" id="attachFiles" type="button">
+              <div class="attach-icon-circle"><i data-lucide="file-text"></i></div>
+              <span>Files</span>
+            </button>
+          </div>
+
+          <button class="bar-btn" id="attachBtn" aria-label="Attach file" type="button">
+            <i data-lucide="plus"></i>
+          </button>
+
+          <!-- Model selector pill button (on the left of prompt input) -->
+          <button class="model-pill-btn" id="inputModelSelectorBtn" type="button">
+            <span id="inputModelLabel">gpt-4o-mini</span>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </button>
+          
+          <div class="input-wrapper">
+            <div class="file-preview-container hidden" id="filePreviewContainer"></div>
+            <textarea id="chatInput" rows="1" placeholder="Message TreeUi..." autocomplete="off" spellcheck="false"></textarea>
+          </div>
+          
+          <button class="bar-btn mic-btn" id="voiceBtn" aria-label="Voice input" type="button">
+            <i data-lucide="mic"></i>
+          </button>
+          
+          <button class="send-btn hidden" id="sendBtn" aria-label="Send message" type="button">
+            <i data-lucide="arrow-up"></i>
+          </button>
+        </div>
+        <div class="input-footer-caption">
+          TreeUi can make mistakes. Verify important info.
+        </div>
+      </footer>
+    </main>
+
+    <!-- Voice Recording Overlay Screen -->
+    <div class="voice-overlay hidden" id="voiceOverlay">
+      <div class="voice-overlay-content">
+        <div class="voice-visualizer">
+          <div class="visualizer-bar bar-1"></div>
+          <div class="visualizer-bar bar-2"></div>
+          <div class="voice-wave-sphere"></div>
+          <div class="visualizer-bar bar-4"></div>
+          <div class="visualizer-bar bar-5"></div>
+        </div>
+        <p class="voice-status" id="voiceStatusText">Listening...</p>
+        <button class="voice-cancel-btn" id="cancelVoiceBtn">
+          <i data-lucide="circle-stop"></i> Stop & Done
+        </button>
+      </div>
+    </div>
+
+    <!-- Settings & API Modal -->
+    <div class="modal" id="settingsModal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Settings & API Keys</h3>
+          <button class="icon-btn" id="closeSettingsModalBtn">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Provider Activation Toggles -->
+          <div class="provider-toggles">
+            
+            <div class="provider-toggle-card">
+              <div class="provider-toggle-header">
+                <div class="provider-name-wrap">
+                  <span class="provider-dot color-openai"></span>
+                  <span>OpenAI API Integration</span>
+                </div>
+                <label class="switch-container">
+                  <input type="checkbox" id="toggleOpenAI">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="provider-key-input hidden" id="groupOpenAI">
+                <div class="password-input-wrapper">
+                  <input type="password" id="apiKeyOpenAI" placeholder="sk-proj-...">
+                  <button class="toggle-password-btn" data-target="apiKeyOpenAI" type="button"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="provider-tip-link">
+                  <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Get OpenAI Key</a>
+                </div>
+                <!-- Model Pool Checklist -->
+                <div class="model-pool-wrap">
+                  <span class="model-pool-title">OpenAI Model Pool (Select to enable):</span>
+                  <div class="model-pool-grid" id="poolGridOpenAI"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="provider-toggle-card">
+              <div class="provider-toggle-header">
+                <div class="provider-name-wrap">
+                  <span class="provider-dot color-claude"></span>
+                  <span>Anthropic (Claude) Integration</span>
+                </div>
+                <label class="switch-container">
+                  <input type="checkbox" id="toggleClaude">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="provider-key-input hidden" id="groupClaude">
+                <div class="password-input-wrapper">
+                  <input type="password" id="apiKeyClaude" placeholder="sk-ant-...">
+                  <button class="toggle-password-btn" data-target="apiKeyClaude" type="button"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="provider-tip-link">
+                  <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Get Claude Key</a>
+                </div>
+                <!-- Model Pool Checklist -->
+                <div class="model-pool-wrap">
+                  <span class="model-pool-title">Claude Model Pool (Select to enable):</span>
+                  <div class="model-pool-grid" id="poolGridClaude"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="provider-toggle-card">
+              <div class="provider-toggle-header">
+                <div class="provider-name-wrap">
+                  <span class="provider-dot color-gemini"></span>
+                  <span>Google Gemini Integration</span>
+                </div>
+                <label class="switch-container">
+                  <input type="checkbox" id="toggleGemini">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="provider-key-input hidden" id="groupGemini">
+                <div class="password-input-wrapper">
+                  <input type="password" id="apiKeyGemini" placeholder="AIzaSy...">
+                  <button class="toggle-password-btn" data-target="apiKeyGemini" type="button"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="provider-tip-link">
+                  <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Get Gemini Key (Free Tier available)</a>
+                </div>
+                <!-- Model Pool Checklist -->
+                <div class="model-pool-wrap">
+                  <span class="model-pool-title">Gemini Model Pool (Select to enable):</span>
+                  <div class="model-pool-grid" id="poolGridGemini"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="provider-toggle-card">
+              <div class="provider-toggle-header">
+                <div class="provider-name-wrap">
+                  <span class="provider-dot color-openrouter"></span>
+                  <span>OpenRouter Integration</span>
+                </div>
+                <label class="switch-container">
+                  <input type="checkbox" id="toggleOpenRouter">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="provider-key-input hidden" id="groupOpenRouter">
+                <div class="password-input-wrapper">
+                  <input type="password" id="apiKeyOpenRouter" placeholder="sk-or-...">
+                  <button class="toggle-password-btn" data-target="apiKeyOpenRouter" type="button"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="provider-tip-link">
+                  <a href="https://openrouter.ai/keys" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Get OpenRouter Key</a>
+                </div>
+                <!-- Model Pool Checklist -->
+                <div class="model-pool-wrap">
+                  <span class="model-pool-title">OpenRouter Model Pool (Select to enable):</span>
+                  <div class="model-pool-grid" id="poolGridOpenRouter"></div>
+                  <!-- Custom Model Adder -->
+                  <div class="custom-model-adder">
+                    <input type="text" id="customModelOpenRouter" placeholder="Add model, e.g. qwen/qwen-2.5-coder-32b">
+                    <button class="add-model-btn" id="addCustomModelOpenRouterBtn" type="button">
+                      <i data-lucide="plus"></i> Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Proxy Settings -->
+          <hr class="settings-divider">
+          <div class="form-group">
+            <div class="provider-toggle-row">
+              <label for="toggleProxy" class="toggle-label">
+                <span>🛡️ API Proxy</span>
+                <small class="toggle-hint">Hide your IP from AI providers via Cloudflare relay</small>
+              </label>
+              <label class="switch">
+                <input type="checkbox" id="toggleProxy">
+                <span class="slider round"></span>
+              </label>
+            </div>
+            <div id="groupProxy" class="provider-settings-group hidden">
+              <div class="proxy-status-card">
+                <div class="proxy-status-icon">🛡️</div>
+                <div class="proxy-status-info">
+                  <div class="proxy-status-title">Proxy Active</div>
+                  <div class="proxy-status-desc">OpenAI, Claude, and Gemini requests are routed through Cloudflare. OpenRouter is already private.</div>
+                </div>
+              </div>
+              <details class="proxy-advanced">
+                <summary>Advanced: Custom proxy URL</summary>
+                <div class="form-group compact">
+                  <input type="url" id="proxyUrl" placeholder="https://treeui-proxy.yourname.workers.dev" value="">
+                  <p class="proxy-hint">Leave empty to use built-in proxy. Or deploy your own <code>proxy-worker.js</code>.</p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <hr class="settings-divider">
+
+          <div class="form-group">
+            <label for="systemPrompt">System Instruction</label>
+            <textarea id="systemPrompt" rows="3" placeholder="You are a helpful, smart, and friendly AI assistant. Be concise."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="temperature">Temperature (<span id="tempValue">0.7</span>)</label>
+              <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+            </div>
+            <div class="form-group half">
+              <label for="appTheme">Theme</label>
+              <select id="appTheme">
+                <option value="dark">Deep Obsidian (Dark)</option>
+                <option value="light">Crisp Snow (Light)</option>
+                <option value="system">System Preference</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="secondary-btn" id="resetSettingsBtn">Clear All Keys</button>
+          <button class="primary-btn" id="saveSettingsBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
