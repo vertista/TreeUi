@@ -1,0 +1,44 @@
+{
+  "appId": "com.treeui.chat",
+  "appName": "TreeUi",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "api.openai.com",
+      "api.anthropic.com",
+      "generativelanguage.googleapis.com",
+      "openrouter.ai",
+      "fonts.googleapis.com",
+      "fonts.gstatic.com",
+      "unpkg.com",
+      "cdnjs.cloudflare.com",
+      "*.workers.dev"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
+      "backgroundColor": "#08090a",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#08090a"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}
